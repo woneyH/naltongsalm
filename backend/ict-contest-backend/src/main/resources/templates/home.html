@@ -1,10 +1,85 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>홈 테스트 </title>
+  <title>날통삶  날씨를 통한 나의 삶</title>
+  <link rel="stylesheet" th:href="@{/css/home.css}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<h1>테스트</h1>
+<div class="dashboard-container">
+  <aside class="sidebar">
+    <h2>날통삶</h2>
+    <nav>
+      <p>Dashboard</p>
+      <p>Forecast</p>
+      <p>Alerts</p>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="card summary-card">
+      <div class="weather-left">
+        <h2 th:text="'오늘의 날씨'">대쉬보드 제목</h2>
+        <div class="temp-large" th:text="${currentWeather.temp} + '°'">몇 도</div>
+        <p th:text="${currentWeather.skyStatus}">날씨 정보(ex:맑음)</p>
+      </div>
+      <div class="weather-right">
+        <div class="scores">
+          <div class="score-item">
+            <span>🧺 빨래지수</span>
+            <strong th:text="${laundryScore} + '점'">85</strong>
+          </div>
+          <div class="score-item">
+            <span>🔥 건조지수</span>
+            <strong th:text="${drynessScore} + '점'">45</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <h3>시간대별 지수 변화</h3>
+      <canvas id="trendChart" style="max-height: 300px;"></canvas>
+    </div>
+
+    <div class="alerts-section card">
+      <h3>알람 & 경고</h3>
+      <div th:each="alert : ${alertList}"
+           th:class="'alert-item alert-' + ${alert.type}">
+        <strong th:text="${alert.title}">제목</strong>
+        <p th:text="${alert.message}">내용</p>
+      </div>
+      <div th:if="${#lists.isEmpty(alertList)}" class="alert-item alert-success">
+        <strong>안전</strong>
+        <p>현재 특이 기상 상황이 없습니다.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  var chartDataRaw = /*[[${chartDataJson}]]*/ '{"labels":[], "datasets":[]}';
+  var chartData = JSON.parse(chartDataRaw);
+
+  var ctx = document.getElementById('trendChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { display: false } },
+        x: { grid: { display: false } }
+      },
+      elements: { line: { tension: 0.4 } } // 선을 부드럽게
+    }
+  });
+  /*]]>*/
+</script>
 </body>
 </html>
