@@ -10,7 +10,7 @@
 <body>
 <div class="dashboard-container">
   <aside class="sidebar">
-    <h2>ClimaWatch</h2>
+    <h2>날통삶</h2>
     <nav>
       <p>Dashboard</p>
       <p>Forecast</p>
@@ -21,9 +21,9 @@
   <main class="main-content">
     <div class="card summary-card">
       <div class="weather-left">
-        <h2 th:text="'오늘의 기상 분석'">Weather Dashboard</h2>
-        <div class="temp-large" th:text="${currentWeather.temp} + '°'">28°</div>
-        <p th:text="${currentWeather.skyStatus}">Partly Cloudy</p>
+        <h2 th:text="'오늘의 날씨'">대쉬보드 제목</h2>
+        <div class="temp-large" th:text="${currentWeather.temp} + '°'">몇 도</div>
+        <p th:text="${currentWeather.skyStatus}">날씨 정보(ex:맑음)</p>
       </div>
       <div class="weather-right">
         <div class="scores">
@@ -33,7 +33,7 @@
           </div>
           <div class="score-item">
             <span>🔥 건조지수</span>
-            <strong th:text="${drynessScore} + '%'">45</strong>
+            <strong th:text="${drynessScore} + '점'">45</strong>
           </div>
         </div>
       </div>
@@ -45,7 +45,7 @@
     </div>
 
     <div class="alerts-section card">
-      <h3>Alerts & Warnings</h3>
+      <h3>알람 & 경고</h3>
       <div th:each="alert : ${alertList}"
            th:class="'alert-item alert-' + ${alert.type}">
         <strong th:text="${alert.title}">제목</strong>

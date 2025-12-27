@@ -20,6 +20,15 @@ public class HomeController {
         return "redirect:/gnu-weather/home"; // 리다이렉트 방식 권장
     }
 
+    /**
+     * currentWeather (Map): 현재 날씨 정보 Map 구조
+     * laundryScore  (int): 빨래지수(점수)  빨래 추천점수
+     * drynessScpre  (int): 건조지수(점수) 건조 지수 점수로 산불 조심과 흡연 경고
+     * alertList  (List): 알람 리스트  현재는 빈 리스트만 띄운다.
+     * chartDataJson  (String):  0,6,12,18 시 시간대별 데이터 그래프 담기
+     * @param model
+     * @return
+     */
     @GetMapping("/home")
     public String home(Model model) {
         // 1. 현재 날씨 (에러 방지용 기본값)
