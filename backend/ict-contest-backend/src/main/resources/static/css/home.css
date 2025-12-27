@@ -1,10 +1,20 @@
 /* 기본 배경 및 폰트 설정 */
+:root {
+    --color-primary: #2d82ff;
+    --color-primary-dark: #1e56af;
+    --color-bg: #f8f9fb;
+    --color-border: #eee;
+    --color-card: #fff;
+    --color-text: #333;
+}
+
+
 body {
     margin: 0;
     padding: 0;
     font-family: 'Inter', 'Noto Sans KR', sans-serif;
-    background-color: #f8f9fb; /* 아주 연한 회색 배경 */
-    color: #333;
+    background-color: var(--color-bg); /* 아주 연한 회색 배경 */
+    color: var(--color-text);
 }
 
 /* 전체 레이아웃 구성을 위한 그리드 */
@@ -16,13 +26,13 @@ body {
 /* 사이드바 스타일 */
 .sidebar {
     width: 240px;
-    background-color: #fff;
-    border-right: 1px solid #eee;
+    background-color: var(--color-card);
+    border-right: 1px solid var(--color-border);
     padding: 30px 20px;
 }
 
 .sidebar h2 {
-    color: #2d82ff;
+    color: var(--color-primary);
     font-size: 20px;
     margin-bottom: 40px;
 }
@@ -39,7 +49,7 @@ body {
 
 /* 공통 카드 스타일 */
 .card {
-    background: #fff;
+    background: var(--color-card);
     border-radius: 20px;
     padding: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* 아주 부드러운 그림자 */
@@ -48,14 +58,23 @@ body {
 /* 상단 메인 날씨 카드 (그라데이션) */
 .summary-card {
     grid-column: 1 / 2;
-    background: linear-gradient(135deg, #2d82ff 0%, #1e56af 100%);
-    color: #fff;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-card);
     display: flex;
     justify-content: space-between;
 }
 
-.summary-card h2 { margin-top: 0; font-weight: 400; font-size: 18px; }
-.temp-large { font-size: 64px; font-weight: bold; margin: 10px 0; }
+.summary-card h2 {
+    margin-top: 0;
+    font-weight: 400;
+    font-size: 18px;
+}
+
+.temp-large {
+    font-size: 64px;
+    font-weight: bold;
+    margin: 10px 0;
+}
 
 /* 지수 정보 그리드 */
 .scores {
@@ -66,7 +85,7 @@ body {
 }
 
 .score-item {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--color-text);
     padding: 15px;
     border-radius: 15px;
 }
@@ -91,9 +110,71 @@ body {
     border-left: 5px solid transparent;
 }
 
-.alert-danger { background-color: #fff1f0; border-left-color: #ff4d4f; }
-.alert-warning { background-color: #fffbe6; border-left-color: #ffccc7; }
-.alert-success { background-color: #f6ffed; border-left-color: #b7eb8f; }
+.alert-danger {
+    background-color: #fff1f0;
+    border-left-color: #ff4d4f;
+}
 
-.alert-item strong { font-size: 14px; margin-bottom: 4px; }
-.alert-item p { margin: 0; font-size: 13px; color: #666; }
+.alert-warning {
+    background-color: #fffbe6;
+    border-left-color: #ffccc7;
+}
+
+.alert-success {
+    background-color: #f6ffed;
+    border-left-color: #b7eb8f;
+}
+
+.alert-item strong {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.alert-item p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+
+/*반응형*/
++
+
+@media (max-width: 768px) {
+    + .dashboard-container {
+    + flex-direction: column;
+    +
+    }
+
+    +
+    + .sidebar {
+    + width: 100 %;
+    + border-right: none;
+    + border-bottom: 1 px solid #eee;
+    + padding: 20 px;
+    +
+    }
+
+    +
+    + .main-content {
+    + grid-template-columns: 1 fr;
+    + padding: 20 px;
+    +
+    }
+
+    +
+    + .alerts-section {
+    + grid-column: 1;
+    + grid-row: auto;
+    +
+    }
+
+    +
+    + .summary-card,
+    + .chart-card {
+    + grid-column: 1;
+    +
+    }
+
++
+}
