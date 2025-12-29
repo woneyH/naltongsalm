@@ -6,26 +6,14 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Builder
-@RequiredArgsConstructor
-@AllArgsConstructor
+@Getter @Builder @NoArgsConstructor @AllArgsConstructor
 public class WeatherInfo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column
     private String weatherType;
-
-    @Column
     private String message;
-
-    @Column
-    private String weatherValue;
-
-    @Column
+    private double temp;
+    private double humidity;
+    private double laundryScore;
     private LocalDateTime createdAt;
-
-
 }
