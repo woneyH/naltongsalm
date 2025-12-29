@@ -1,85 +1,108 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>날통삶  날씨를 통한 나의 삶</title>
-  <link rel="stylesheet" th:href="@{/css/home.css}">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <title>날통삶 - 날씨를 통한 나의 삶</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 <div class="dashboard-container">
-  <aside class="sidebar">
-    <h2>날통삶</h2>
-    <nav>
-      <p>Dashboard</p>
-      <p>Forecast</p>
-      <p>Alerts</p>
-    </nav>
-  </aside>
+    <aside class="sidebar">
+        <h2>날통삶</h2>
+        <nav>
+            <p>Dashboard</p>
+            <p>Forecast</p>
+            <p>Alerts</p>
+        </nav>
+    </aside>
 
-  <main class="main-content">
-    <div class="card summary-card">
-      <div class="weather-left">
-        <h2 th:text="'오늘의 날씨'">대쉬보드 제목</h2>
-        <div class="temp-large" th:text="${currentWeather.temp} + '°'">몇 도</div>
-        <p th:text="${currentWeather.skyStatus}">날씨 정보(ex:맑음)</p>
-      </div>
-      <div class="weather-right">
-        <div class="scores">
-          <div class="score-item">
-            <span>🧺 빨래지수</span>
-            <strong th:text="${laundryScore} + '점'">85</strong>
-          </div>
-          <div class="score-item">
-            <span>🔥 건조지수</span>
-            <strong th:text="${drynessScore} + '점'">45</strong>
-          </div>
+    <main class="main-content">
+        <div class="card summary-card">
+            <div class="weather-left">
+                <h2 style="font-weight: 600; opacity: 0.9;">실시간 기상 대시보드</h2>
+                <div class="temp-large" th:text="${currentWeather.temp} + '°'">--°</div>
+                <p style="font-size: 1.1rem; opacity: 0.9;" th:text="${currentWeather.skyStatus}">상태 정보</p>
+                <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.7;">
+                    습도 <span th:text="${currentWeather.humidity}">0</span>% | 기상청 공식 데이터
+                </div>
+            </div>
+            <div class="weather-right">
+                <div class="scores">
+                    <div class="score-item">🧺 빨래 <strong th:text="${laundryScore}">0</strong>점</div>
+                    <div class="score-item">🔥 건조 <strong th:text="${drynessScore}">0</strong>점</div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <div class="card chart-card">
-      <h3>시간대별 지수 변화</h3>
-      <canvas id="trendChart" style="max-height: 300px;"></canvas>
-    </div>
+        <div class="card chart-card" style="margin-top: 25px;">
+            <h3 style="margin-bottom: 20px; font-size: 16px; color: #666;">📅 향후 24시간 예측 (1시간 단위)</h3>
+            <div style="height: 300px;">
+                <canvas id="forecastChart"></canvas>
+            </div>
+        </div>
 
-    <div class="alerts-section card">
-      <h3>알람 & 경고</h3>
-      <div th:each="alert : ${alertList}"
-           th:class="'alert-item alert-' + ${alert.type}">
-        <strong th:text="${alert.title}">제목</strong>
-        <p th:text="${alert.message}">내용</p>
-      </div>
-      <div th:if="${#lists.isEmpty(alertList)}" class="alert-item alert-success">
-        <strong>안전</strong>
-        <p>현재 특이 기상 상황이 없습니다.</p>
-      </div>
-    </div>
-  </main>
+        <div class="card detail-viz-card" style="text-align: center; padding: 20px;">
+            <h3>상세 분석 리포트</h3>
+            <button onclick="document.getElementById('vizImage').style.display='block'"
+                    style="padding: 10px 25px; background: #3498db; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">
+                Matplotlib 시각화 자세히 보기
+            </button>
+            <div id="vizImage" style="display: none; margin-top: 20px;">
+                <img th:src="${graphUrl}" alt="상세 분석 그래프" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            </div>
+        </div>
+
+        <div class="alerts-section card">
+            <h3>알람 & 경고</h3>
+            <div th:each="alert : ${alertList}" th:class="'alert-item alert-' + ${alert.type}">
+                <strong th:text="${alert.title}">제목</strong>
+                <p th:text="${alert.message}">내용</p>
+            </div>
+            <div th:if="${#lists.isEmpty(alertList)}" class="alert-item alert-success">
+                <strong>안전</strong>
+                <p>현재 특이 기상 상황이 없습니다.</p>
+            </div>
+        </div>
+    </main>
 </div>
 
 <script th:inline="javascript">
-  /*<![CDATA[*/
-  var chartDataRaw = /*[[${chartDataJson}]]*/ '{"labels":[], "datasets":[]}';
-  var chartData = JSON.parse(chartDataRaw);
+    const chartSource = [[${chartDataObj}]];
+    const ctx = document.getElementById('forecastChart').getContext('2d');
 
-  var ctx = document.getElementById('trendChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: chartData,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, grid: { display: false } },
-        x: { grid: { display: false } }
-      },
-      elements: { line: { tension: 0.4 } } // 선을 부드럽게
-    }
-  });
-  /*]]>*/
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartSource.labels,
+            datasets: [{
+                label: '빨래지수',
+                data: chartSource.scores,
+                borderColor: '#2d82ff',
+                backgroundColor: 'rgba(45, 130, 255, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 2
+            }, {
+                label: '예상 기온(°C)',
+                data: chartSource.temps,
+                borderColor: '#ff9f43',
+                borderDash: [5, 5],
+                fill: false,
+                tension: 0.4,
+                yAxisID: 'y1' // 온도는 별도 축 사용 가능 (선택사항)
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 100, title: { display: true, text: '지수' } },
+                y1: { position: 'right', grid: { display: false }, title: { display: true, text: '온도(°C)' } }
+            }
+        }
+    });
 </script>
 </body>
 </html>
