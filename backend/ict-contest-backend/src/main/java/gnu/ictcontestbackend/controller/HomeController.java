@@ -1,52 +1,50 @@
 package gnu.ictcontestbackend.controller;
 
-import gnu.ictcontestbackend.repository.WeatherInfoRepository;
+import gnu.ictcontestbackend.dto.WeatherPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model; // 추가
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 @Controller
 @RequestMapping("/gnu-weather")
-@RequiredArgsConstructor // 레포지토리 주입을 위해 필요
+@RequiredArgsConstructor
 public class HomeController {
 
-    private final WeatherInfoRepository weatherInfoRepository;
-
-    @GetMapping({"/",""})
-    public String homeRedirect() {
-        return "redirect:/gnu-weather/home"; // 리다이렉트 방식 권장
-    }
-
-    /**
-     * currentWeather (Map): 현재 날씨 정보 Map 구조
-     * laundryScore  (int): 빨래지수(점수)  빨래 추천점수
-     * drynessScpre  (int): 건조지수(점수) 건조 지수 점수로 산불 조심과 흡연 경고
-     * alertList  (List): 알람 리스트  현재는 빈 리스트만 띄운다.
-     * chartDataJson  (String):  0,6,12,18 시 시간대별 데이터 그래프 담기
-     * @param model
-     * @return
-     */
     @GetMapping("/home")
     public String home(Model model) {
-        // 1. 현재 날씨 (에러 방지용 기본값)
-        Map<String, Object> currentWeather = new HashMap<>();
-        currentWeather.put("temp", "22");
-        currentWeather.put("skyStatus", "맑음");
-        model.addAttribute("currentWeather", currentWeather);
+        WeatherPayload data = WeatherController.latestData;
 
-        // 2. 지수 및 코멘트
-        model.addAttribute("laundryScore", 0);
-        model.addAttribute("drynessScore", 0);
+        if (data != null && data.getForecastList() != null) {
+            // 1. 대시보드 (진주 실제 온도 반영)
+            model.addAttribute("currentWeather", Map.of(
+                    "temp", data.getCurrentTemp(),
+                    "humidity", data.getCurrentReh(),
+                    "skyStatus", "경상국립대학교 실시간 기상 정보"
+            ));
 
-        // 3. 알림 리스트 (null 에러 방지를 위해 빈 리스트 생성)
-        model.addAttribute("alertList", new ArrayList<Map<String, String>>());
+            // 2. 현재 점수
+            model.addAttribute("laundryScore", (int)data.getForecastList().get(0).getLaundryScore());
+            model.addAttribute("drynessScore", (int)data.getForecastList().get(0).getDrynessScore());
 
-        // 4. 차트 데이터 초기값
-        model.addAttribute("chartDataJson", "{\"labels\":[\"0시\",\"6시\",\"12시\",\"18시\"], \"datasets\":[{\"data\":[0,0,0,0]}]}");
-
+            // 3. 24시간 Chart.js 데이터
+            Map<String, Object> chartData = new HashMap<>();
+            chartData.put("labels", data.getForecastList().stream().map(f -> f.getTime()).toList());
+            chartData.put("scores", data.getForecastList().stream().map(f -> f.getLaundryScore()).toList());
+            chartData.put("temps", data.getForecastList().stream().map(f -> f.getTemp()).toList());
+            model.addAttribute("chartDataObj", chartData);
+        } else {
+            // 데이터 수신 전 기본값
+            model.addAttribute("currentWeather", Map.of("temp", "--", "humidity", "0", "skyStatus", "수신 대기 중"));
+            model.addAttribute("laundryScore", 0);
+            model.addAttribute("drynessScore", 0);
+            model.addAttribute("chartDataObj", Map.of("labels", List.of(), "scores", List.of(), "temps", List.of()));
+        }
+        model.addAttribute("alertList", new ArrayList<>());
+        model.addAttribute("graphUrl", "https://naltongsalm1.blob.core.windows.net/graphs/weather_detail.png");
         return "home";
     }
 }
