@@ -2,7 +2,8 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>날통삶 - 날씨를 통한 나의 삶</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>날통삶 - 날씨를 통한 삶</title>
     <link rel="stylesheet" th:href="@{/css/home.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,8 +14,8 @@
         <h2>날통삶</h2>
         <nav>
             <p>Dashboard</p>
-            <p>Forecast</p>
-            <p>Alerts</p>
+            <p>🗺️ 지역 선택(서비스 예정)</p>
+            <p>알람창</p>
         </nav>
     </aside>
 
@@ -72,6 +73,29 @@
     const chartSource = [[${chartDataObj}]];
     const ctx = document.getElementById('forecastChart').getContext('2d');
 
+    // [추가 로직] 현재 시간(0~23) 구하기
+    const currentHour = new Date().getHours();
+
+    // [추가 로직] 데이터 포인트마다 색상과 크기를 다르게 설정하는 배열 생성
+    const pointBackgroundColors = chartSource.labels.map(label => {
+        // "20시" -> 20 (숫자로 변환)
+        const labelHour = parseInt(label);
+        // 현재 시간과 같으면 '빨간색(#ff4757)', 아니면 기존 '투명 파란색'
+        return labelHour === currentHour ? '#ff4757' : 'rgba(45, 130, 255, 0.1)';
+    });
+
+    const pointBorderColors = chartSource.labels.map(label => {
+        const labelHour = parseInt(label);
+        // 현재 시간과 같으면 테두리도 '빨간색', 아니면 '파란색'
+        return labelHour === currentHour ? '#ff4757' : '#2d82ff';
+    });
+
+    const pointRadii = chartSource.labels.map(label => {
+        const labelHour = parseInt(label);
+        // 현재 시간과 같으면 점 크기를 6(강조), 나머지는 2
+        return labelHour === currentHour ? 6 : 2;
+    });
+
     new Chart(ctx, {
         type: 'line',
         data: {
@@ -80,10 +104,16 @@
                 label: '빨래지수',
                 data: chartSource.scores,
                 borderColor: '#2d82ff',
+
+                // [적용] 위에서 만든 동적 스타일 배열 적용
+                pointBackgroundColor: pointBackgroundColors,
+                pointBorderColor: pointBorderColors,
+                pointRadius: pointRadii,
+                pointHoverRadius: 8, // 마우스 올렸을 때 더 커지게
+
                 backgroundColor: 'rgba(45, 130, 255, 0.1)',
                 fill: true,
-                tension: 0.4,
-                pointRadius: 2
+                tension: 0.4
             }, {
                 label: '예상 기온(°C)',
                 data: chartSource.temps,
@@ -91,7 +121,7 @@
                 borderDash: [5, 5],
                 fill: false,
                 tension: 0.4,
-                yAxisID: 'y1' // 온도는 별도 축 사용 가능 (선택사항)
+                yAxisID: 'y1'
             }]
         },
         options: {
