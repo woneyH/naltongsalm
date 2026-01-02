@@ -1,4 +1,6 @@
-/* 기본 배경 및 폰트 설정 */
+/* =========================================
+   1. 기본 설정 (폰트, 변수, 리셋)
+   ========================================= */
 :root {
     --color-primary: #2d82ff;
     --color-primary-dark: #1e56af;
@@ -8,22 +10,23 @@
     --color-text: #333;
 }
 
-
 body {
     margin: 0;
     padding: 0;
     font-family: 'Inter', 'Noto Sans KR', sans-serif;
-    background-color: var(--color-bg); /* 아주 연한 회색 배경 */
+    background-color: var(--color-bg);
     color: var(--color-text);
 }
 
-/* 전체 레이아웃 구성을 위한 그리드 */
+/* =========================================
+   2. 데스크탑 레이아웃 (기본)
+   ========================================= */
 .dashboard-container {
-    display: flex; /* 사이드바와 메인을 가로로 배치 */
+    display: flex; /* 가로 배치 (사이드바 | 메인) */
     height: 100vh;
 }
 
-/* 사이드바 스타일 */
+/* 사이드바 (왼쪽 고정) */
 .sidebar {
     width: 240px;
     background-color: var(--color-card);
@@ -43,19 +46,21 @@ body {
     padding: 30px;
     overflow-y: auto;
     display: grid;
-    grid-template-columns: 2fr 1fr; /* 2:1 비율로 메인과 우측 알림 배치 */
+    grid-template-columns: 2fr 1fr; /* 2:1 비율 */
     grid-gap: 24px;
 }
 
-/* 공통 카드 스타일 */
+/* =========================================
+   3. 카드 및 컴포넌트 스타일
+   ========================================= */
 .card {
     background: var(--color-card);
     border-radius: 20px;
     padding: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* 아주 부드러운 그림자 */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
-/* 상단 메인 날씨 카드 (그라데이션) */
+/* 상단 날씨 요약 카드 */
 .summary-card {
     grid-column: 1 / 2;
     background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
@@ -76,7 +81,7 @@ body {
     margin: 10px 0;
 }
 
-/* 지수 정보 그리드 */
+/* 빨래/건조 점수 */
 .scores {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -95,10 +100,10 @@ body {
     grid-column: 1 / 2;
 }
 
-/* 우측 알림창 섹션 */
+/* 알림 섹션 */
 .alerts-section {
     grid-column: 2 / 3;
-    grid-row: 1 / 3; /* 아래까지 길게 배치 */
+    grid-row: 1 / 3;
 }
 
 .alert-item {
@@ -110,71 +115,81 @@ body {
     border-left: 5px solid transparent;
 }
 
-.alert-danger {
-    background-color: #fff1f0;
-    border-left-color: #ff4d4f;
-}
+.alert-danger { background-color: #fff1f0; border-left-color: #ff4d4f; }
+.alert-warning { background-color: #fffbe6; border-left-color: #ffccc7; }
+.alert-success { background-color: #f6ffed; border-left-color: #b7eb8f; }
 
-.alert-warning {
-    background-color: #fffbe6;
-    border-left-color: #ffccc7;
-}
-
-.alert-success {
-    background-color: #f6ffed;
-    border-left-color: #b7eb8f;
-}
-
-.alert-item strong {
-    font-size: 14px;
-    margin-bottom: 4px;
-}
-
-.alert-item p {
-    margin: 0;
-    font-size: 13px;
-    color: #666;
-}
+.alert-item strong { font-size: 14px; margin-bottom: 4px; }
+.alert-item p { margin: 0; font-size: 13px; color: #666; }
 
 
-/*반응형*/
-+
-
+/* =========================================
+   4. 모바일 반응형 스타일 (화면 너비 768px 이하)
+   ========================================= */
 @media (max-width: 768px) {
-    + .dashboard-container {
-    + flex-direction: column;
-    +
+
+    /* (1) 레이아웃 변경: 가로 -> 세로 */
+    .dashboard-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
     }
 
-    +
-    + .sidebar {
-    + width: 100 %;
-    + border-right: none;
-    + border-bottom: 1 px solid #eee;
-    + padding: 20 px;
-    +
+    /* (2) 사이드바 -> 하단 고정 탭바(Bottom Tab Bar)로 변경 */
+    .sidebar {
+        position: fixed; /* 화면 하단 고정 */
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        padding: 0;
+        border-right: none;
+        border-top: 1px solid #eee;
+        z-index: 9999;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    +
-    + .main-content {
-    + grid-template-columns: 1 fr;
-    + padding: 20 px;
-    +
+    /* "날통삶" 제목 숨김 */
+    .sidebar h2 { display: none; }
+
+    /* 메뉴 아이템 가로 정렬 */
+    .sidebar nav {
+        display: flex;
+        width: 100%;
+        justify-content: space-around;
+        align-items: center;
     }
 
-    +
-    + .alerts-section {
-    + grid-column: 1;
-    + grid-row: auto;
-    +
+    .sidebar nav p {
+        font-size: 13px;
+        margin: 0;
+        padding: 10px;
     }
 
-    +
-    + .summary-card,
-    + .chart-card {
-    + grid-column: 1;
-    +
+    /* (3) 메인 콘텐츠 너비 확장 */
+    .main-content {
+        display: flex;
+        flex-direction: column; /* 카드 세로로 쌓기 */
+        padding: 20px;
+        padding-bottom: 80px; /* 하단 탭바 가려짐 방지 여백 */
+        width: 100%;
+        box-sizing: border-box; /* 패딩 포함 너비 계산 */
     }
 
-+
+    /* (4) 카드들 모양 최적화 */
+    .summary-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .weather-left { margin-bottom: 20px; }
+
+    /* 차트 높이 확보 */
+    .chart-card { min-height: 350px; }
+
+    /* 알림창 마진 제거 */
+    .alerts-section { margin-top: 0; }
 }
