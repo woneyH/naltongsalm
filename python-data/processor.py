@@ -15,8 +15,18 @@ def process_weather_data(ncst_list, fcst_list):
     for _, row in pivot_df.head(24).iterrows():
         reh = float(row['REH'])
         wsd = float(row['WSD'])
-        # 빨래지수 공식: (100-습도)*0.6 + (풍속*10)*0.4
+        
+        # 1. 빨래지수 기본 공식: (100-습도)*0.6 + (풍속*10)*0.4
         l_score = (100 - reh) * 0.6 + (wsd * 10) * 0.4
+        
+        # 2. [추가됨] 밤 시간대(18시 ~ 06시) 햇빛 부재 페널티 적용
+        # fcstTime 예: "1800" -> 앞 두 자리 "18"만 가져와서 정수로 변환
+        fcst_hour = int(row['fcstTime'][:2])
+        
+        is_night = fcst_hour >= 18 or fcst_hour <= 6
+        if is_night:
+            # 밤에는 빨래가 잘 마르지 않으므로 점수를 50%만 반영
+            l_score = l_score * 0.5
         
         forecast_items.append({
             "time": row['fcstTime'][:2] + "시",
