@@ -13,9 +13,16 @@
     <aside class="sidebar">
         <h2>날통삶</h2>
         <nav>
-            <p>Dashboard</p>
-            <p>🗺️ 지역 선택(서비스 예정)</p>
-            <p>알람창</p>
+            <div class="nav-item">
+                <p>Dashboard</p>
+            </div>
+            <div class="nav-item">
+                <p>🗺️ 지역 선택(예정)</p>
+            </div>
+            <div class="nav-item">
+                <p>🔔 알람창</p>
+                <span id="mobileBadge" class="notification-badge"></span>
+            </div>
         </nav>
     </aside>
 
@@ -27,6 +34,9 @@
                 <p style="font-size: 1.1rem; opacity: 0.9;" th:text="${currentWeather.skyStatus}">상태 정보</p>
                 <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.7;">
                     습도 <span th:text="${currentWeather.humidity}">0</span>% | 기상청 공식 데이터
+                </div>
+                <div style="margin-top: 15px; font-size: 0.8rem; opacity: 0.7;">
+                    <span>⚠️ 1시간 단위 기상 정보이므로 정확한 날씨 정보가 아닙니다! (김원혁)</span>
                 </div>
             </div>
             <div class="weather-right">
@@ -61,6 +71,7 @@
                 <strong th:text="${alert.title}">제목</strong>
                 <p th:text="${alert.message}">내용</p>
             </div>
+
             <div th:if="${#lists.isEmpty(alertList)}" class="alert-item alert-success">
                 <strong>안전</strong>
                 <p>현재 특이 기상 상황이 없습니다.</p>
@@ -73,26 +84,20 @@
     const chartSource = [[${chartDataObj}]];
     const ctx = document.getElementById('forecastChart').getContext('2d');
 
-    // [추가 로직] 현재 시간(0~23) 구하기
     const currentHour = new Date().getHours();
 
-    // [추가 로직] 데이터 포인트마다 색상과 크기를 다르게 설정하는 배열 생성
     const pointBackgroundColors = chartSource.labels.map(label => {
-        // "20시" -> 20 (숫자로 변환)
         const labelHour = parseInt(label);
-        // 현재 시간과 같으면 '빨간색(#ff4757)', 아니면 기존 '투명 파란색'
         return labelHour === currentHour ? '#ff4757' : 'rgba(45, 130, 255, 0.1)';
     });
 
     const pointBorderColors = chartSource.labels.map(label => {
         const labelHour = parseInt(label);
-        // 현재 시간과 같으면 테두리도 '빨간색', 아니면 '파란색'
         return labelHour === currentHour ? '#ff4757' : '#2d82ff';
     });
 
     const pointRadii = chartSource.labels.map(label => {
         const labelHour = parseInt(label);
-        // 현재 시간과 같으면 점 크기를 6(강조), 나머지는 2
         return labelHour === currentHour ? 6 : 2;
     });
 
@@ -104,13 +109,10 @@
                 label: '빨래지수',
                 data: chartSource.scores,
                 borderColor: '#2d82ff',
-
-                // [적용] 위에서 만든 동적 스타일 배열 적용
                 pointBackgroundColor: pointBackgroundColors,
                 pointBorderColor: pointBorderColors,
                 pointRadius: pointRadii,
-                pointHoverRadius: 8, // 마우스 올렸을 때 더 커지게
-
+                pointHoverRadius: 8,
                 backgroundColor: 'rgba(45, 130, 255, 0.1)',
                 fill: true,
                 tension: 0.4
@@ -133,6 +135,21 @@
             }
         }
     });
+
+    /* =========================================
+       모바일 뱃지 로직 (모달 관련 함수 삭제됨)
+       ========================================= */
+
+    // 1. 서버에서 알람 리스트 가져오기
+    const alerts = [[${alertList}]];
+
+    // 2. '주의(warning)'나 '위험(danger)' 알람이 있는지 확인
+    const hasDanger = alerts && alerts.some(alert => alert.type === 'warning' || alert.type === 'danger');
+
+    // 3. 위험한 알람이 있으면 탭바 아이콘에 빨간 점 표시 (눌러도 아무일 없음)
+    if (hasDanger) {
+        document.getElementById('mobileBadge').style.display = 'block';
+    }
 </script>
 </body>
 </html>
