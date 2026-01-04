@@ -19,7 +19,7 @@ def process_weather_data(ncst_list, fcst_list):
         # 1. 빨래지수 기본 공식: (100-습도)*0.6 + (풍속*10)*0.4
         l_score = (100 - reh) * 0.6 + (wsd * 10) * 0.4
         
-        # 2. [추가됨] 밤 시간대(18시 ~ 06시) 햇빛 부재 페널티 적용
+        # 2. 밤 시간대(18시 ~ 06시) 햇빛 부재 페널티 적용
         # fcstTime 예: "1800" -> 앞 두 자리 "18"만 가져와서 정수로 변환
         fcst_hour = int(row['fcstTime'][:2])
         
@@ -29,7 +29,7 @@ def process_weather_data(ncst_list, fcst_list):
             l_score = l_score * 0.5
         
         forecast_items.append({
-            "time": row['fcstTime'][:2] + "시",
+            "time": row['fcstTime'][:2] + "h",
             "temp": float(row['TMP']),
             "laundryScore": round(l_score, 1),
             "drynessScore": 100 - reh
