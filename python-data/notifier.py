@@ -2,7 +2,7 @@ import os
 import requests
 import json
 from datetime import datetime
-
+#배포를 위한 주석.
 class WebNotifier:
     def __init__(self, spring_url=None):
         """

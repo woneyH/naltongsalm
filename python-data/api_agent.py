@@ -41,8 +41,9 @@ class WeatherAPI:
         
         print(f"DEBUG: Requesting NCST for {base_date} {base_time_ncst}")
 
+        #81 75  
         ncst_params = {
-            'serviceKey': self.key, 'dataType': 'JSON', 'nx': 81, 'ny': 84,
+            'serviceKey': self.key, 'dataType': 'JSON', 'nx': 81, 'ny': 75,
             'base_date': base_date, 'base_time': base_time_ncst
         }
         ncst_data = self.fetch_api('getUltraSrtNcst', ncst_params)

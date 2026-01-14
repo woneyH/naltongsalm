@@ -15,10 +15,11 @@ def run_weather_logic(trigger_source: str):
     try:
         # 1. 객체 생성 및 설정
         api = WeatherAPI()
-        
+        #
         # [중요] 내일 아침에 VS Code 켜고, DevTunnel 주소가 바뀌었는지 꼭 확인하세요!
         # 바뀌었다면 여기 주소만 수정해서 다시 배포하면 됩니다.
-        target_url = "https://m8jzbfpm-8080.asse.devtunnels.ms/api/alerts"
+        target_url = "https://naltongsalm-gnu.azurewebsites.net/api/alerts"
+
         notifier = WebNotifier(target_url) 
         
         # 2. 데이터 가져오기
